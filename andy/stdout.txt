@@ -1,0 +1,25 @@
+Andy v0.28-575d45a (2022-05-03T17:35:52+0200)
+
+--- Compilation
+Success
+
+--- JUnit execution
+Warning
+We do not see any tests.
+Please check for the following JUnit pre-conditions:
+- Normal tests must be annotated with "@Test"
+- Parameterized tests must be annotated with "@ParameterizedTest"
+- Method sources must be static and provided as: "@MethodSource("generator")" e.g.
+- Property based tests must be annotated with "@Property"
+- @BeforeAll and @AfterAll methods should be static
+- @BeforeEach methods should be non-static
+
+--- Assessment
+Branch coverage: 0/0 (overall weight=0.25)
+Mutation coverage: 0/0 (overall weight=0.25)
+Code checks: 0/0 (overall weight=0.25)
+Meta tests: 0/0 (overall weight=0.25)
+
+Final grade: 0/100
+
+Andy is running in PRACTICE mode and took 2.0 seconds to assess your solution.
