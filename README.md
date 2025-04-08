@@ -1,5 +1,18 @@
-In this exercise, you will be testing the `containsAny` method.
+Write tests for the `releaseNewEdition` method that is used to add new editions of books.
 
-> This method returns true if at least one element is in both collections.
+Achieve 100% branch+condition coverage of this method Mock only what needs to be mocked.
 
-*This method was taken from the [Apache Commons Collections](https://github.com/apache/commons-collections/blob/87a028621f8c20704cdb50bff8f03bd17f9e2917/src/main/java/org/apache/commons/collections4/CollectionUtils.java#L474).*
+You may use verification statement of the format
+
+```
+verify(mock, times(n)).method( param 1, param 2....)
+```
+where the statement verifies that the method() with the specific parameters is called for the MOCKED object exactly "n" times.
+
+AND 
+
+```
+verify(mock, never()).method( param 1, param 2....)
+
+```
+where the  statement verifies that the method() with the specific parameters is never called for the MOCKED object.
