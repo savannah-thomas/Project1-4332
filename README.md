@@ -1,18 +1,2 @@
-Write tests for the `releaseNewEdition` method that is used to add new editions of books.
-
-Achieve 100% branch+condition coverage of this method Mock only what needs to be mocked.
-
-You may use verification statement of the format
-
-```
-verify(mock, times(n)).method( param 1, param 2....)
-```
-where the statement verifies that the method() with the specific parameters is called for the MOCKED object exactly "n" times.
-
-AND 
-
-```
-verify(mock, never()).method( param 1, param 2....)
-
-```
-where the  statement verifies that the method() with the specific parameters is never called for the MOCKED object.
+# Project1-4332
+Project 1 for 4332 requires us to develop a Library Management System with an Interface and a Library, Member, and Book class. Additionally, the project requires us to write a test suite with Specification, Structural, and Property Based tests. 
