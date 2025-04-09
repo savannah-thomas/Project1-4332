@@ -2,16 +2,32 @@ package LibraryManagementSystem;
 
 import java.util.Scanner;
 
+/**
+ * A console-based implementation of the Interface that allows a librarian to
+ * add/remove books, add/remove members, and checkout books specific for a certain member.
+ */
 public class ConsoleInterface implements Interface {
 
     private final Library library;
     private final Scanner scanner;
 
+    /**
+     *Constructor for ConsoleInterface with Library.
+     * @param library instance called Library
+     * @throws IllegalArgumentException is a library doesn't exist, and must have valid library to continue
+     */
     public ConsoleInterface(Library library) {
+        if (library == null) {
+            throw new IllegalArgumentException("Library doesn't exist.");
+        }
         this.library = library;
         this.scanner = new Scanner(System.in);
     }
 
+    /**
+     * Prompts librarian to enter ALL valid details for book, then adds new book Object to Library.
+     * Prompts the librarian through the console interface and once book is successfully added the Library is updated.
+     */
     @Override
     public void addBook() {
         System.out.println("Enter book details:");
@@ -34,15 +50,18 @@ public class ConsoleInterface implements Interface {
         System.out.print("Genre: ");
         String genre = scanner.nextLine();
 
-
         boolean isAvailable = true;
-
 
         Book book = new Book(name, author, year, isbn, bookID, isAvailable, genre);
         library.addBook(book);
         System.out.println("Book added successfully.");
     }
 
+    /**
+     * Removes book from library using valid BookID.
+     * Book is removed from Library, if found (it exists).
+     * Prompts the librarian through the console interface and once book is successfully removed the Library is updated.
+     */
     @Override
     public void removeBook() {
         System.out.print("Enter BookID of the book to remove: ");
@@ -51,6 +70,11 @@ public class ConsoleInterface implements Interface {
         System.out.println("Book removed (if found) from the library.");
     }
 
+    /**
+     * Adds new member to Library.
+     * MemberID must be valid and unique.
+     * Prompts the librarian through the console interface and once member is successfully added the Library is updated.
+     */
     @Override
     public void addMember() {
         System.out.println("Enter member details:");
@@ -68,7 +92,11 @@ public class ConsoleInterface implements Interface {
         library.addMember(memberID);
         System.out.println("Member added successfully.");
     }
-
+    /**
+     * Removes existing member from Library.
+     * MemberID must exist.
+     * Prompts the librarian through the console interface and once member is successfully removed the Library is updated.
+     */
     @Override
     public void removeMember() {
         System.out.print("Enter MemberID of the member to remove: ");
@@ -77,6 +105,12 @@ public class ConsoleInterface implements Interface {
         System.out.println("Member removed (if found) from the library.");
     }
 
+    /**
+     * Checks out book to a specified member.
+     * BookID must be linked to available book and MemberID must exist.
+     * Book is updated as loaned by specified member.
+     * Prompts the librarian through the console interface and once book is successfully marked the Library is updated.
+     */
     @Override
     public void checkoutBook() {
         System.out.print("Enter BookID to checkout: ");
@@ -89,6 +123,11 @@ public class ConsoleInterface implements Interface {
         System.out.println("Checkout process completed.");
     }
 
+    /**
+     * Method runs the console interface loop for the librarian.
+     * Commands execute based on user input until exist is called.
+     * Multiple operations to update Library are called here.
+     */
     public void run() {
         boolean exit = false;
         while (!exit) {
@@ -127,6 +166,7 @@ public class ConsoleInterface implements Interface {
         scanner.close();
     }
 
+    //Instantiates Library and starts console interface operations.
     public static void main(String[] args) {
         Library library = new Library();
         ConsoleInterface cli = new ConsoleInterface(library);

@@ -21,6 +21,10 @@ public class Library {
         this.MemberIDs          = new ArrayList<>();
     }
 
+    /**
+     * Adds book to library.
+     * @param book to be added
+     */
     public void addBook(Book book) {
         AllBooksInLibrary.add(book);
         AvailableBookIds.add(book.getBookID());
