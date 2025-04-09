@@ -21,3 +21,4 @@ public interface Interface {
     //Allows librarian to check out a book to a member.
     void checkoutBook();
 }
+

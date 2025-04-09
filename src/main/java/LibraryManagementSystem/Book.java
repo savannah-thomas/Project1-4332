@@ -1,7 +1,6 @@
 
     package LibraryManagementSystem;
 
-    //
     public class Book {
         // Fields that were directly specified from UML
         private String Name;
