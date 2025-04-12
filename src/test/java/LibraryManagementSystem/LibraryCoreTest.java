@@ -9,31 +9,33 @@ public class LibraryCoreTest {
 
     private Library library;
     private Book book;
+    private Member member;
 
     @BeforeEach
     public void setup() {
         library = new Library();
         book = new Book("Physics", "Smith", 2022, "123456", "B001", true, "Science");
+        member = new Member("Cole", "colemail", "M123");
     }
 
     @Test
-    public void voidLtestAddBook() {
+    public void voidTestAddBook() {
         library.addBook(book);
         assertTrue(library.bookAvailability("B001"));
         assertEquals("B001", library.findBookIdByName("Physics"));
     }
-
     @Test
     public void testCheckoutBook() {
         library.addBook(book);
+        library.addMember("M123");
         library.checkoutBook("B001", "M123");
         assertFalse(library.bookAvailability("B001"));
         assertEquals("M123", library.whoHasBook("B001"));
     }
-
     @Test
     public void testReturnBook() {
         library.addBook(book);
+        library.addMember("M123");
         library.checkoutBook("B001", "M123");
         library.returnBook("B001");
         assertTrue(library.bookAvailability("B001"));
