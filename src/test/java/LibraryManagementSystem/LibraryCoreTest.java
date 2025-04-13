@@ -1,7 +1,11 @@
 package LibraryManagementSystem;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+
+import java.io.InputStream;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -52,8 +56,8 @@ public class LibraryCoreTest {
         assertFalse(library.getAllMembers().contains("M001"));
     }
 
-    //Specification Based Tests
-    //Specifically, shown w/ Exception Handling Tests
+
+    //Tests for Library Class Below!
 
     //Test removes book w/ invalid ID, throws IllegalArg
     //Specification: Method contract specifies bookID must be null/empty
@@ -81,6 +85,17 @@ public class LibraryCoreTest {
         assertThrows(IllegalArgumentException.class, () -> library.findBookIdByName(null));
     }
 
+    //Test that checkoutBook throws IllegalArg when null book or member ID given
+    //Edge Case: Null Book ID or Member ID
+    //Specification: checkoutBook requires valid non-null BookID and MemberID
+    @Test
+    public void testCheckoutWithNullValues() {
+        assertThrows(IllegalArgumentException.class, () -> library.checkoutBook(null, "A001"));
+        assertThrows(IllegalArgumentException.class, () -> library.checkoutBook("B001", null));
+    }
+
+    //Tests for Member Class Below!
+
     //Test tries to create member w/ null name, email, or ID, throws NullPtr
     //Specification: Constructor requires that all member info (name, email, ID) can't be null
     @Test
@@ -105,5 +120,65 @@ public class LibraryCoreTest {
         Member member = new Member("Cole", "Cole@example.com", "M002");
         assertThrows(NullPointerException.class, () -> member.UpdateMemberInfo(null, "new@example.com"));
     }
-}
 
+
+    //Structural: Tests that addBorrowedBook throws on null
+    @Test
+    public void testAddBorrowedBookThrowsOnNull() {
+        Member member = new Member("Jane", "josh@example.com", "A001");
+        assertThrows(NullPointerException.class, () -> member.addBorrowedBook(null));
+    }
+
+    //Structural: Tests that removeBorrowedBook throws on null
+    @Test
+    public void testRemoveBorrowedBookThrowsOnNull() {
+        Member member = new Member("Jane", "josh@example.com", "A002");
+        assertThrows(NullPointerException.class, () -> member.removeBorrowedBook(null));
+    }
+
+    //Specification: Adds a book and ensures it's in borrowed list
+    @Test
+    public void testAddBorrowedBookUpdatesList() {
+        Member member = new Member("Sav", "sav@example.com", "A003");
+        Book book = new Book("Title", "Author", 2025, "ISBN1", "B001", true, "Fiction");
+
+        member.addBorrowedBook(book);
+        assertTrue(member.getBorrowedBookList().contains(book));
+    }
+
+    //Specification: Adds and removes book show list should no longer contain it
+    @Test
+    public void testRemoveBorrowedBookUpdatesList() {
+        Member member = new Member("Sav", "sav@example.com", "A004");
+        Book book = new Book("Title2", "Author", 2025, "ISBN2", "B002", true, "Drama");
+
+        member.addBorrowedBook(book);
+        member.removeBorrowedBook(book);
+        assertFalse(member.getBorrowedBookList().contains(book));
+    }
+
+    //Property-Based: Tests that adding null book shouldn't corrupt list
+    @Test
+    public void testBorrowedListNeverContainsNull() {
+        Member member = new Member("Quinn", "quinn@example.com", "A006");
+        try {
+            member.addBorrowedBook(null);
+        } catch (Exception ignored) {
+        }
+
+        assertFalse(member.getBorrowedBookList().contains(null));
+    }
+
+    //Property-Based: Tests size after add/remove returns to original state
+    @Test
+    public void testBorrowedListSizeRestoredAfterAddRemove() {
+        Member member = new Member("Quinn", "quinn@example.com", "A007");
+        int initialSize = member.getBorrowedBookList().size();
+
+        Book book = new Book("Title3", "Author", 2025, "ISBN3", "B003", true, "Mystery");
+        member.addBorrowedBook(book);
+        member.removeBorrowedBook(book);
+
+        assertEquals(initialSize, member.getBorrowedBookList().size());
+    }
+}
