@@ -43,6 +43,13 @@ public class Library {
         if (bookID == null || bookID.isEmpty()) {
             throw new IllegalArgumentException("Must enter valid book ID.");
         }
+        //Checks to see of book exist in library
+        boolean exists = AllBooksInLibrary.stream()
+                .anyMatch(b -> b.getBookID().equals(bookID));
+        if (!exists) {
+            throw new IllegalArgumentException("Book with ID " + bookID + " does not exist.");
+        }
+        // Proceed to remove book
         AllBooksInLibrary.removeIf(b -> b.getBookID().equals(bookID));
         AvailableBookIds.remove(bookID);
         LoanedBooks.remove(bookID);
@@ -88,6 +95,10 @@ public class Library {
     public void revokeMembership(String memberID) {
         if (memberID == null || memberID.isEmpty()) {
             throw new IllegalArgumentException("Must provide valid member ID");
+        }
+        //Checks if the member actually exists
+        if (!MemberIDs.contains(memberID)) {
+            throw new IllegalArgumentException("Member with ID " + memberID + " does not exist.");
         }
         MemberIDs.remove(memberID);
 

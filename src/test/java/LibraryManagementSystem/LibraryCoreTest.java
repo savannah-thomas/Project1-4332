@@ -57,7 +57,7 @@ public class LibraryCoreTest {
     }
 
 
-    //Tests for Library Class Below!
+    //LIBRARY EXCEPTION TESTS BELOW
 
     //Test removes book w/ invalid ID, throws IllegalArg
     //Specification: Method contract specifies bookID must be null/empty
@@ -94,7 +94,30 @@ public class LibraryCoreTest {
         assertThrows(IllegalArgumentException.class, () -> library.checkoutBook("B001", null));
     }
 
-    //Tests for Member Class Below!
+    //removeBook requires book to be in library
+    //Specification: removeBook throws IllegalArg when book doesn't exist
+    @Test
+    public void testRemoveNonExistentBook() {
+        library.addBook(book);
+        assertThrows(IllegalArgumentException.class, () -> library.removeBook("B999"));
+    }
+
+    //Specification: ensures returnBook doesn't change book's availability when book wasn't checked out
+    @Test
+    public void testReturnUnborrowedBook() {
+        library.addBook(book);
+        library.returnBook("B001"); // Not checked out
+        assertTrue(library.bookAvailability("B001"));
+    }
+
+    //revokeMembership requires that member be registered
+    //Specification: revokeMembership throws IllegalArg when member doesn't exist
+    @Test
+    public void testRevokeNonExistentMember() {
+        assertThrows(IllegalArgumentException.class, () -> library.revokeMembership("M999"));
+    }
+
+    //MEMBER CLASS TESTS BELOW
 
     //Test tries to create member w/ null name, email, or ID, throws NullPtr
     //Specification: Constructor requires that all member info (name, email, ID) can't be null
@@ -125,14 +148,14 @@ public class LibraryCoreTest {
     //Structural: Tests that addBorrowedBook throws on null
     @Test
     public void testAddBorrowedBookThrowsOnNull() {
-        Member member = new Member("Jane", "josh@example.com", "A001");
+        Member member = new Member("Josh", "josh@example.com", "A001");
         assertThrows(NullPointerException.class, () -> member.addBorrowedBook(null));
     }
 
     //Structural: Tests that removeBorrowedBook throws on null
     @Test
     public void testRemoveBorrowedBookThrowsOnNull() {
-        Member member = new Member("Jane", "josh@example.com", "A002");
+        Member member = new Member("Josh", "josh@example.com", "A002");
         assertThrows(NullPointerException.class, () -> member.removeBorrowedBook(null));
     }
 
@@ -181,4 +204,24 @@ public class LibraryCoreTest {
 
         assertEquals(initialSize, member.getBorrowedBookList().size());
     }
+
+    //Ensures a member can't borrow same book twice
+    //Specification: checkOutBook should throw IllegalArg is book is already out
+    @Test
+    public void testMemberCannotBorrowSameBookTwice() {
+        library.addBook(book);
+        library.addMember("M123");
+        library.checkoutBook("B001", "M123");
+        assertThrows(IllegalArgumentException.class, () -> library.checkoutBook("B001", "M123"));
+    }
+
+    //BOOK CLASSES BELOW
+
+    //Specification: Ensures newly created book that is available returns true
+    @Test
+    public void testCheckAvailability() {
+        Book b = new Book("The Hunger Games", "Collins", 2016, "123456", "A001", true, "Science");
+        assertTrue(b.checkAvailability());
+    }
+
 }
