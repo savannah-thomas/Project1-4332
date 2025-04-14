@@ -20,5 +20,11 @@ public interface Interface {
 
     //Allows librarian to check out a book to a member.
     void checkoutBook();
+
+    //Allows librarian to return a book from a member.
+    void returnBook();
+
+    //Lists all books in the library.
+    void printAllBooks();
 }
 

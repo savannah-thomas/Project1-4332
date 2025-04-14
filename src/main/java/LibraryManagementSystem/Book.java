@@ -75,6 +75,10 @@
             return BookID;
         }
 
+        public void setAvailability(boolean availability) {
+            IsAvailable = availability;
+        }
+
     }
 
 

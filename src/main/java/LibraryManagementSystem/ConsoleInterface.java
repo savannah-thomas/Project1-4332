@@ -1,5 +1,6 @@
 package LibraryManagementSystem;
 
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -66,6 +67,12 @@ public class ConsoleInterface implements Interface {
     public void removeBook() {
         System.out.print("Enter BookID of the book to remove: ");
         String bookID = scanner.nextLine();
+
+        if (!library.bookAvailability(bookID)) {
+            System.out.println("Loaned books cannot be removed until returned.");
+            return;
+        }
+
         library.removeBook(bookID);
         System.out.println("Book removed (if found) from the library.");
     }
@@ -123,6 +130,22 @@ public class ConsoleInterface implements Interface {
         System.out.println("Checkout process completed.");
     }
 
+    @Override
+    public void returnBook() {
+        System.out.print("Enter BookID to return: ");
+        String bookID = scanner.nextLine();
+
+        library.returnBook(bookID);
+    }
+
+    @Override
+    public void printAllBooks() {
+        List<Book> books = library.getAllBooks();
+        for (Book book : books) {
+            System.out.println(book.getBookInfo());
+        }
+    }
+
     /**
      * Method runs the console interface loop for the librarian.
      * Commands execute based on user input until exist is called.
@@ -137,7 +160,9 @@ public class ConsoleInterface implements Interface {
             System.out.println("3. Add Member");
             System.out.println("4. Remove Member");
             System.out.println("5. Checkout Book");
-            System.out.println("6. Exit");
+            System.out.println("6. Return Book");
+            System.out.println("7. List Books");
+            System.out.println("8. Exit");
             System.out.print("Enter your choice: ");
             String choice = scanner.nextLine();
             switch (choice) {
@@ -157,6 +182,12 @@ public class ConsoleInterface implements Interface {
                     checkoutBook();
                     break;
                 case "6":
+                    returnBook();
+                    break;
+                case "7":
+                    printAllBooks();
+                    break;
+                case "8":
                     exit = true;
                     break;
                 default:

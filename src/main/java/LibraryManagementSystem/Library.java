@@ -73,6 +73,11 @@ public class Library {
         }
         AvailableBookIds.remove(bookID);
         LoanedBooks.put(bookID, memberID);
+        for (Book book : AllBooksInLibrary) {
+            if (book.getBookID().equals(bookID)) {
+                book.setAvailability(false);
+            }
+        }
     }
 
     /**
@@ -130,6 +135,12 @@ public class Library {
     }
 
     /**
+     *
+     * @return list of Books in Library System.
+     */
+    public List<Book> getAllBooks() { return AllBooksInLibrary; }
+
+    /**
      * Finds ID of the book given its name.
      * @param bookName of book trying to be found
      * @return ID of matching book
@@ -159,6 +170,11 @@ public class Library {
         if (LoanedBooks.containsKey(bookID)) {
             LoanedBooks.remove(bookID);
             AvailableBookIds.add(bookID);
+        }
+        for (Book book : AllBooksInLibrary) {
+            if (book.getBookID().equals(bookID)) {
+                book.setAvailability(true);
+            }
         }
     }
 }
