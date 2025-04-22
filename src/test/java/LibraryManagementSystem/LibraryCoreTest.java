@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.io.InputStream;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LibraryCoreTest {
 
@@ -215,7 +216,7 @@ public class LibraryCoreTest {
         assertThrows(IllegalArgumentException.class, () -> library.checkoutBook("B001", "M123"));
     }
 
-    //BOOK CLASSES BELOW
+    //BOOK CLASSES TEST BELOW
 
     //Specification: Ensures newly created book that is available returns true
     @Test
@@ -224,4 +225,80 @@ public class LibraryCoreTest {
         assertTrue(b.checkAvailability());
     }
 
+    ////////// TESTS FOR PROJECT 2 //////////
+
+    //PURCHASING CLASS TESTS BELOW
+
+    //Property-Based: Checks that numerous outputs of generateBookCost() satisfies that price be in b/t $10 and $100
+    @Test
+    public void testPurchaseBookPriceRange() {
+        Purchasing purchasing = new Purchasing();
+
+        //tests up to 100 purchases to ensure all are within the expected range
+        for (int i = 0; i < 100; i++) {
+            double price = purchasing.generateBookCost();
+            assertTrue(price >= 10.0 && price <= 100.0,
+                    "Book price out of range: " + price);
+        }
+    }
+
+    //LIBRARY ACCOUNT CLASS TESTS BELOW
+
+    //Specification: verifies that IllegalArg is thrown when a salary withdrawal is over operating cash balance
+    //and ensures operating cash balance doesn't change after a failed withdrawal
+    @Test
+    public void testSalaryWithdrawalDoesNotOverdraw() {
+        Librarians librarians = new Librarians();
+        LibraryAccounts accounts = new LibraryAccounts(librarians);
+        double initialBalance = accounts.getOperatingCashBalance();
+        double withdrawAmount = initialBalance + 1000;
+
+        try {
+            accounts.withdrawSalary("Alice", withdrawAmount);
+            fail("Expected IllegalArgumentException to be thrown");
+        } catch (IllegalArgumentException e) {
+        }
+
+        //Balance should remain unchanged
+        assertEquals(initialBalance, accounts.getOperatingCashBalance(), 0.001,
+                "Balance should remain unchanged after failed withdrawal.");
+    }
+
+    //Specification: verifies that a donation added to the operating cash balance increases by donated amt
+    //ensures correctness of the addDonation method and confirms that donations are correct in the library's financial records
+    @Test
+    public void testDonationsIncreaseBalance() {
+        Librarians librarians = new Librarians();
+        LibraryAccounts accounts = new LibraryAccounts(librarians);
+        double before = accounts.getOperatingCashBalance();
+        accounts.addDonation(500.00);
+        double after = accounts.getOperatingCashBalance();
+
+        assertEquals(before + 500.00, after, 0.001, "Donation must increase balance.");
+    }
+
+    //LIBRARIANS CLASS TEST BELOW
+
+    //Specification: verifies when full-time librarian purchases a book, their record of purchased books increases
+    @Test
+    public void testBookPurchaseIsLogged() {
+        Librarians librarians = new Librarians();
+        int before = librarians.getBooksPurchased("Alice");
+
+        librarians.recordBookPurchase("Alice"); // Correct method based on your class
+        int after = librarians.getBooksPurchased("Alice");
+
+        assertEquals(before + 1, after, "Book purchase log should increase by 1");
+    }
+
+    //Specification: verifies when a librarian withdraws salary multiple times, the total should increase correctly
+    @Test
+    public void testWithdrawnSalaryAccumulates() {
+        Librarians librarians = new Librarians();
+        librarians.recordSalary("Alice", 1000.00);
+        librarians.recordSalary("Alice", 500.00);
+
+        assertEquals(1500.00, librarians.getTotalSalaryWithdrawn("Alice"), 0.001,
+                "Total salary increased correctly.");
+    }
 }

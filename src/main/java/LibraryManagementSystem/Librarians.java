@@ -1,5 +1,5 @@
 package LibraryManagementSystem;
-//
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -36,9 +36,13 @@ public class Librarians {
     }
 
 
-
     public int getBooksPurchased(String name) {
         return booksPurchased.getOrDefault(name, 0);
+    }
+
+    //added in order to test record salary
+    public double getTotalSalaryWithdrawn(String name) {
+        return salaries.getOrDefault(name, 0.0);
     }
 
 
