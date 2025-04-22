@@ -213,7 +213,13 @@ public class ConsoleInterface implements Interface {
     public void run() {
         boolean exit = false;
         while (!exit) {
-            System.out.println("\nLibrary Menu:");
+            System.out.println("\nLibrary Management System by\n" +
+                               "Cole Collins\n" +
+                               "Quinn Farnet\n" +
+                               "Savannah Thomas\n" +
+                               "Deandray Coates\n");
+
+            System.out.println("Library Menu:");
             System.out.println("1. Add Book");
             System.out.println("2. Remove Book");
             System.out.println("3. Add Member");
