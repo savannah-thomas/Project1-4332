@@ -35,7 +35,6 @@ public class Librarians {
         booksPurchased.put(name, booksPurchased.getOrDefault(name, 0) + 1);
     }
 
-
     public int getBooksPurchased(String name) {
         return booksPurchased.getOrDefault(name, 0);
     }

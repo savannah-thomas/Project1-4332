@@ -277,7 +277,54 @@ public class LibraryCoreTest {
         assertEquals(before + 500.00, after, 0.001, "Donation must increase balance.");
     }
 
+    //Tests that part-time librarians are rejected from utilizing this methods.
+    @Test
+    public void testPurchaseBookOnlyFullTimeLibrarians() {
+        Librarians librarians = new Librarians();
+        LibraryAccounts accounts = new LibraryAccounts(librarians);
+        assertThrows(SecurityException.class, () -> accounts.purchaseBook("Carl"));
+    }
+
+    //Tests that the cost of the book purchased is equal to the cost reducted from operating balance.
+    @Test
+    public void testPurchaseBookCosts() {
+        Librarians librarians = new Librarians();
+        LibraryAccounts accounts = new LibraryAccounts(librarians);
+        double initialBalance = accounts.getOperatingCashBalance();
+        double cost = accounts.purchaseBook("Alice");
+        assertEquals(initialBalance - cost, accounts.getOperatingCashBalance());
+    }
+
+    //Tests that when the operating balance is too low a book purchase fails accordingly.
+    @Test
+    public void testPurchaseBookInsufficient() {
+        Librarians librarians = new Librarians();
+        LibraryAccounts accounts = new LibraryAccounts(librarians);
+        accounts.withdrawSalary("Alice", 38999);
+        assertThrows(IllegalStateException.class, () -> accounts.purchaseBook("Alice"));
+    }
+
     //LIBRARIANS CLASS TEST BELOW
+
+    //Tests that the authentication function returns correct values.
+    @Test
+    public void testAuthenticate() {
+        Librarians librarians = new Librarians();
+        //Correct+incorrect, correct+incorrect, incorrect+correct, incorrect+incorrect.
+        assertEquals(librarians.authenticate("Alice", "123456"), true);
+        assertEquals(librarians.authenticate("Alice", "654321"), false);
+        assertEquals(librarians.authenticate("Carl", "123456"), false);
+        assertEquals(librarians.authenticate("Carl", "4"), false);
+    }
+
+    //Tests if the full-time librarian check works.
+    @Test
+    public void testFullTime() {
+        Librarians librarians = new Librarians();
+        assertEquals(librarians.isFullTimeLibrarian("Alice"), true);
+        assertEquals(librarians.isFullTimeLibrarian("Carl"), false);
+    }
+
 
     //Specification: verifies when full-time librarian purchases a book, their record of purchased books increases
     @Test
