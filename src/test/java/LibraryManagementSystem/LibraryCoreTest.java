@@ -4,6 +4,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.PrintStream;
 
 import java.io.InputStream;
 import java.util.List;
@@ -304,6 +308,45 @@ public class LibraryCoreTest {
         assertThrows(IllegalStateException.class, () -> accounts.purchaseBook("Alice"));
     }
 
+    // addDonation: zero or negative amounts should throw
+    @Test
+    public void testAddDonationInvalidAmount() {
+        LibraryAccounts accounts = new LibraryAccounts(new Librarians());
+        assertThrows(IllegalArgumentException.class, () -> accounts.addDonation(0));
+        assertThrows(IllegalArgumentException.class, () -> accounts.addDonation(-50.0));
+    }
+
+    // withdrawSalary: part-time librarians cannot withdraw
+    @Test
+    public void testWithdrawSalaryPartTimeLibrarian() {
+        LibraryAccounts accounts = new LibraryAccounts(new Librarians());
+        assertThrows(SecurityException.class, () -> accounts.withdrawSalary("Carl", 1000.0));
+    }
+
+    // withdrawSalary: zero or negative amount should throw
+    @Test
+    public void testWithdrawSalaryInvalidAmounts() {
+        Librarians libs = new Librarians();
+        LibraryAccounts accounts = new LibraryAccounts(libs);
+        assertThrows(IllegalArgumentException.class, () -> accounts.withdrawSalary("Alice", 0));
+        assertThrows(IllegalArgumentException.class, () -> accounts.withdrawSalary("Alice", -500));
+    }
+
+    // withdrawSalary: successful withdrawal updates balance and records salary
+    @Test
+    public void testWithdrawSalarySuccess() {
+        Librarians libs = new Librarians();
+        LibraryAccounts accounts = new LibraryAccounts(libs);
+        double initial = accounts.getOperatingCashBalance();
+
+        accounts.withdrawSalary("Alice", 1500.0);
+
+        assertEquals(initial - 1500.0, accounts.getOperatingCashBalance(), 0.001,
+                "Balance should decrease by withdrawn amount");
+        assertEquals(1500.0, libs.getTotalSalaryWithdrawn("Alice"), 0.001,
+                "Recorded salary should match withdrawal");
+    }
+
     //LIBRARIANS CLASS TEST BELOW
 
     //Tests that the authentication function returns correct values.
@@ -348,4 +391,204 @@ public class LibraryCoreTest {
         assertEquals(1500.00, librarians.getTotalSalaryWithdrawn("Alice"), 0.001,
                 "Total salary increased correctly.");
     }
+    ///ConsoleInterface tests
+
+    //Helper function to simulate console input/output
+    private String runWithIO(String simulatedInput, Runnable codeUnderTest) {
+        InputStream  origIn  = System.in;
+        PrintStream  origOut = System.out;
+        ByteArrayOutputStream outputResult = new ByteArrayOutputStream();
+        try {
+            System.setIn(new ByteArrayInputStream(simulatedInput.getBytes()));
+            System.setOut(new PrintStream(outputResult));
+            codeUnderTest.run();
+        } finally {
+            System.setIn(origIn);
+            System.setOut(origOut);
+        }
+        return outputResult.toString();
+    }
+
+    // Covers constructor null-guard in ConsoleInterface
+    @Test
+    public void consoleConstructorThrowsWhenDepsMissing() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new ConsoleInterface(null,
+                        new LibraryAccounts(new Librarians()),
+                        new Librarians()));
+    }
+
+    // Full-time librarian with wrong PIN should downgrade to part-time
+    @Test
+    public void invalidPinFallsBackToPartTime() {
+        String output = runWithIO("""
+            Alice
+            000000
+            4
+            M999
+            0
+            """, () -> new ConsoleInterface(
+                new Library(),
+                new LibraryAccounts(new Librarians()),
+                new Librarians()).run());
+
+        assertEquals(true, output.contains("Invalid code"));
+        assertEquals(true, output.contains("Only full-time librarians"));
+    }
+
+    // Part-time checkout on unavailable book shows restriction message
+    @Test
+    public void partTimeCheckoutShowsRestriction() {
+        String output = runWithIO("""
+            Carl
+            5
+            X001
+            0
+            """, () -> new ConsoleInterface(
+                new Library(),
+                new LibraryAccounts(new Librarians()),
+                new Librarians()).run());
+
+        assertEquals(true, output.contains("Please ask a full-time librarian"));
+    }
+
+    // Return-book menu path restores availability
+    @Test
+    public void menuReturnBookRestoresAvailability() {
+        Library lib = new Library();
+        runWithIO("""
+            Alice
+            123456
+            1
+            RBook
+            RAuthor
+            2025
+            ISBN-R
+            R1
+            Drama
+            3
+            Mike
+            mike@ex.com
+            M10
+            5
+            R1
+            M10
+            6
+            R1
+            0
+            """, () -> new ConsoleInterface(lib,
+                new LibraryAccounts(new Librarians()),
+                new Librarians()).run());
+
+        assertEquals(true, lib.bookAvailability("R1"));
+        assertEquals(null, lib.whoHasBook("R1"));
+    }
+
+    // Purchase branch inside checkoutBook
+    @Test
+    public void fullTimePurchaseBranch() {
+        Library lib = new Library();
+        runWithIO("""
+            Alice
+            123456
+            3
+            Jane Roe
+            jane@ex.com
+            M222
+            5
+            B222
+            yes
+            New Book
+            New Author
+            2025
+            ISBN222
+            B222
+            Sci-Fi
+            M222
+            0
+            """, () -> new ConsoleInterface(lib,
+                new LibraryAccounts(new Librarians()),
+                new Librarians()).run());
+
+        assertEquals(false, lib.bookAvailability("B222"));
+        assertEquals("M222", lib.whoHasBook("B222"));
+    }
+
+    // Exercise most menu items as full-time librarian (except purchase dialogue)
+    @Test
+    public void fullTimeMenuPathCoverage() {
+        Librarians      libs     = new Librarians();
+        LibraryAccounts accounts = new LibraryAccounts(libs);
+
+        runWithIO("""
+            Alice
+            123456
+            1
+            Book
+            Author
+            2025
+            ISBN001
+            B001
+            Fiction
+            3
+            John
+            john@ex.com
+            M001
+            5
+            B001
+            M001
+            7
+            8
+            500
+            10
+            9
+            100
+            11
+            2
+            B001
+            4
+            M001
+            0
+            """, () -> new ConsoleInterface(new Library(), accounts, libs).run());
+
+        assertEquals(true, accounts.getOperatingCashBalance() >= 100);
+    }
+
+    // Smoke-test ConsoleInterface.main()
+    @Test
+    public void mainMethodSmokeTest() {
+        String output = runWithIO("""
+            Carl
+            0
+            """, () -> ConsoleInterface.main(new String[0]));
+
+        assertEquals(true, output.contains("Library Menu:"));
+    }
+
+    @Test
+    public void consoleRemoveBookSuccess() {
+        Library lib = new Library();
+        String output = runWithIO("""
+                Carl
+                1
+                Test Book
+                Test Author
+                2025
+                ISBN123
+                ID123
+                Fiction
+                2
+                ID123
+                0
+                """, () -> {
+            ConsoleInterface cli = new ConsoleInterface(
+                    lib,
+                    new LibraryAccounts(new Librarians()),
+                    new Librarians());
+            cli.run();
+        });
+        assertEquals(true, output.contains("Book removed."));
+        assertEquals(false, lib.bookAvailability("ID123"));
+    }
+
 }
