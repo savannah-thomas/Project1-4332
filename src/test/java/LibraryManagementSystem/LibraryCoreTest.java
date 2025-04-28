@@ -391,6 +391,8 @@ public class LibraryCoreTest {
         assertEquals(1500.00, librarians.getTotalSalaryWithdrawn("Alice"), 0.001,
                 "Total salary increased correctly.");
     }
+
+
     ///ConsoleInterface tests
 
     //Helper function to simulate console input/output
@@ -433,9 +435,9 @@ public class LibraryCoreTest {
 
 
 
-    // Full-time librarian with wrong PIN should downgrade to part-time
+    // Full-time librarian with wrong PIN given part-time access
     @Test
-    public void invalidPinFallsBackToPartTime() {
+    public void invalidPinToPartTime() {
         String output = runWithIO("""
             Alice
             000000
@@ -451,9 +453,9 @@ public class LibraryCoreTest {
         assertEquals(true, output.contains("Only full-time librarians"));
     }
 
-    // Part-time checkout on unavailable book shows restriction message
+    // Part-time checkout on unavailable book message
     @Test
-    public void partTimeCheckoutShowsRestriction() {
+    public void partTimeCheckout() {
         String output = runWithIO("""
             Carl
             5
@@ -467,9 +469,9 @@ public class LibraryCoreTest {
         assertEquals(true, output.contains("Please ask a full-time librarian"));
     }
 
-    // Return-book menu path restores availability
+    // Return-book menu restores availability
     @Test
-    public void menuReturnBookRestoresAvailability() {
+    public void returnBookRestoresAvailability() {
         Library lib = new Library();
         runWithIO("""
             Alice
@@ -499,9 +501,9 @@ public class LibraryCoreTest {
         assertEquals(null, lib.whoHasBook("R1"));
     }
 
-    // Purchase branch inside checkoutBook
+    // Purchase inside checkoutBook
     @Test
-    public void fullTimePurchaseBranch() {
+    public void fullTimePurchase() {
         Library lib = new Library();
         runWithIO("""
             Alice
@@ -529,9 +531,9 @@ public class LibraryCoreTest {
         assertEquals("M222", lib.whoHasBook("B222"));
     }
 
-    // Covers full-time decline-purchase path in checkoutBook without hanging
+    //  checkoutBook book with declining purchase with full time librarian
     @Test
-    public void fullTimeDeclinePurchaseBranchThrows() {
+    public void fullTimeNoPurchase() {
         String input = """
         Alice
         123456
@@ -546,7 +548,7 @@ public class LibraryCoreTest {
         0
         """;
 
-        // Instantiate inside the lambda so its Scanner sees our ByteArrayInputStream
+
         assertThrows(IllegalArgumentException.class, () ->
                 runWithIO(input, () -> {
                     ConsoleInterface cli = new ConsoleInterface(
@@ -561,7 +563,7 @@ public class LibraryCoreTest {
 
     // Exercise most menu items as full-time librarian (except purchase dialogue)
     @Test
-    public void fullTimeMenuPathCoverage() {
+    public void fullTimeMenuNumbers() {
         Librarians      libs     = new Librarians();
         LibraryAccounts accounts = new LibraryAccounts(libs);
 
@@ -577,7 +579,7 @@ public class LibraryCoreTest {
             Fiction
             3
             John
-            john@ex.com
+            john@lsu.edu
             M001
             5
             B001
@@ -599,9 +601,9 @@ public class LibraryCoreTest {
         assertEquals(true, accounts.getOperatingCashBalance() >= 100);
     }
 
-    // Smoke-test ConsoleInterface.main()
+    //ConsoleInterface.main() test
     @Test
-    public void mainMethodSmokeTest() {
+    public void mainMethodTest() {
         String output = runWithIO("""
             Carl
             0
@@ -610,8 +612,9 @@ public class LibraryCoreTest {
         assertEquals(true, output.contains("Library Menu:"));
     }
 
+    //test to see if book removal works from the console interface
     @Test
-    public void consoleRemoveBookSuccess() {
+    public void consoleRemoveBook() {
         Library lib = new Library();
         String output = runWithIO("""
                 Carl
@@ -636,10 +639,7 @@ public class LibraryCoreTest {
         assertEquals(false, lib.bookAvailability("ID123"));
     }
 
-    /**
-     * Part-time librarians should not be able to access full-time commands (8–11).
-     * This covers the branch where isFullTime == false for those menu options.
-     */
+    //test to see if part-time librarians can access privileged commands
     @Test
     public void partTimeCannotAccessFullTimeCommands() {
         Librarians libs = new Librarians();
